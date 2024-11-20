@@ -10,17 +10,34 @@ from palmerpenguins import load_penguins
 import seaborn as sns
 import ipyleaflet as ipyl
 from shinywidgets import render_plotly
+from pathlib import Path  
 
 # Load the Palmer Penguins dataset
 penguins_df = load_penguins()
 penguins_df.head()
 
 
-# Define UI
+
 
 # Define UI
 app_ui = ui.page_fluid(
-    ui.h2("Penguin Dashboard", style="background-color:orange; color:Blue; text-align: center;"),
+    ui.row(
+        # Column for the image (set to 4/12 of the row width)
+        ui.column(2,  # Column for the image (takes up 2/12 of the row)
+            ui.div(
+                ui.output_image("image", height="100px"),  # Image output
+                style="border: 1px solid #ccc; padding: 0px; margin: 1px; border-radius: 0.75px; max-width: 30%; height:80px; object-fit: contain;"
+            )
+        ),
+        
+        # Column for the heading (Penguin Dashboard)
+        ui.column(10,  # Column for the heading (takes up 10/12 of the row)
+            ui.h2("Penguin Dashboard", 
+                style="background-color:orange; color:Blue; text-align: center; padding: 10px; margin: auto; border-radius: 5px;"
+            )
+        )
+    ),
+    
     ui.row(
         ui.column(4, 
             ui.div(
@@ -48,9 +65,9 @@ app_ui = ui.page_fluid(
                 style="border: 1px solid #ccc; padding: 10px; margin: 10px; border-radius: 5px;"
             )
         ),
-      ui.column(8,  # Wider column for the inputs
+        ui.column(8,  # Wider column for the inputs
             ui.div(
-                  ui.row(
+                ui.row(
                     ui.column(3, 
                         ui.input_checkbox_group(
                             "selected_species_list", 
@@ -108,9 +125,6 @@ app_ui = ui.page_fluid(
     )
 )
  
- 
-  
- 
 
 def server(input, output, session):   
     @reactive.calc
@@ -121,6 +135,14 @@ def server(input, output, session):
         filtered = penguins_df[penguins_df["species"].isin(selected_species) & penguins_df["island"].isin(selected_island)
                                & penguins_df["sex"].isin(selected_sex)]
         return filtered
+
+    @output
+    @render.image  
+    def image():
+        here = Path(__file__).parent
+        img_path = "C:/Users/Mahi2/Pictures/shiny1.png"  
+        img = {"src": img_path, "width": "80px"} 
+        return img
         
     @output
     @render.table
